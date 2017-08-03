@@ -1,0 +1,36 @@
+{
+  "name": "shapeup",
+  "version": "0.1.0",
+  "description": "Improved shape and reshape React property types",
+  "main": "shapeup.js",
+  "scripts": {
+    "lint": "eslint .",
+    "min": "babel shapeup.js --no-comments -o shapeup-min.js",
+    "test": "tape test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frankban/shapeup.git"
+  },
+  "keywords": [
+    "propType",
+    "react",
+    "properties",
+    "shape"
+  ],
+  "author": "Francesco Banconi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/frankban/shapeup/issues"
+  },
+  "homepage": "https://github.com/frankban/shapeup#readme",
+  "dependencies": {
+    "prop-types": "^15.5.10"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-babili": "^0.1.4",
+    "eslint": "^4.3.0",
+    "tape": "^4.8.0"
+  }
+}
