@@ -3,9 +3,6 @@
 const shapeup = require('./shapeup.js');
 const test = require('tape');
 
-// Define the property name for the shape information.
-const SHAPE = '__shape__';
-
 test('deepFreeze', t => {
   t.test('deeply freezes objects', t => {
     const obj = {
@@ -17,19 +14,22 @@ test('deepFreeze', t => {
       number: 42
     };
     const frozen = shapeup.deepFreeze(obj);
-    const checkFrozen = obj => t.ok(Object.isFrozen(obj), JSON.stringify(obj));
-    checkFrozen(obj);
-    checkFrozen(obj.array);
-    checkFrozen(obj.obj);
-    checkFrozen(obj.obj.array);
-    checkFrozen(obj.obj.func);
-    checkFrozen(obj.obj);
-    checkFrozen(obj.func);
-    checkFrozen(obj.map);
-    checkFrozen(obj.str);
-    checkFrozen(obj.number);
+    checkFrozen(t, obj);
+    checkFrozen(t, obj.array);
+    checkFrozen(t, obj.obj);
+    checkFrozen(t, obj.obj.array);
+    checkFrozen(t, obj.obj.func);
+    checkFrozen(t, obj.obj);
+    checkFrozen(t, obj.func);
+    checkFrozen(t, obj.map);
+    checkFrozen(t, obj.str);
+    checkFrozen(t, obj.number);
     t.end();
   });
+});
+
+test('fromShape', t => {
+  t.end();
 });
 
 test('reshapeFunc', t => {
@@ -44,3 +44,14 @@ test('reshapeFunc', t => {
     t.end();
   });
 });
+
+test('shape', t => {
+  t.end();
+});
+
+// Check that the given object is frozen.
+const checkFrozen = (t, obj) => t.ok(
+  Object.isFrozen(obj), JSON.stringify(obj));
+
+// Define the property name for the shape information.
+const SHAPE = '__shape__';
