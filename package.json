@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint .",
     "min": "babel shapeup.js --no-comments -o shapeup-min.js",
-    "test": "tape test.js"
+    "test": "tape test.js | tap-diff"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
     "babel-cli": "^6.24.1",
     "babel-preset-babili": "^0.1.4",
     "eslint": "^4.3.0",
+    "tap-diff": "^0.1.1",
     "tape": "^4.8.0"
   }
 }
