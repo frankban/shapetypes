@@ -19,6 +19,12 @@ const PropTypes = require('prop-types');
   Declare a property type as the given shape.
   This works like PropTypes.shape, except the provided property must only
   include the fields declared in the shape.
+  This property type supports two variations:
+    - isRequired: as usual, declare that the property is required;
+    - frozen: declare that the provided property must be a deeply frozen
+      object. It is possible to use the "shapeup.deepFreeze" helper to achieve
+      that goal. Alternatively, the object prepared and returned by
+      "shapeup.fromShape" is deeply frozen by default.
 
   @param {Object} obj The object defining the shape.
   @returns {Function} The shape property type.
@@ -74,9 +80,11 @@ function shape(obj) {
     optionally declared "shapeup.reshape" property.
   @param {Function} propType The property type with the declared shape
     (built using "shapeup.shape").
+  @param {Object} options Additional optional parameters, including:
+    - mutable: whether to skip deeply freezing of the resulting object.
   @returns {Object} The resulting property, as a deeply frozen object.
 */
-function fromShape(obj, propType) {
+function fromShape(obj, propType, options=null) {
   const declaration = propType[SHAPE];
   if (!(declaration instanceof Declaration)) {
     throw new Error('from shape called with a non-shape property type');
@@ -87,7 +95,7 @@ function fromShape(obj, propType) {
   Object.keys(shape).forEach(key => {
     const type = shape[key];
     if (type[SHAPE] instanceof Reshape) {
-      // Add the reshape method to the resulting instance.
+      // Add the reshape function to the resulting instance.
       instance[key] = fromShape.bind(null, instance);
       return;
     }
@@ -108,6 +116,10 @@ function fromShape(obj, propType) {
     }
     instance[key] = value;
   });
+  options = options || {};
+  if (options.mutable) {
+    return instance;
+  }
   return deepFreeze(instance);
 }
 
