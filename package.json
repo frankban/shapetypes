@@ -1,11 +1,11 @@
 {
   "name": "shapeup",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Improved shape and reshape React property types",
   "main": "shapeup.js",
   "scripts": {
     "lint": "eslint .",
-    "min": "babel shapeup.js --no-comments -o shapeup-min.js",
+    "prepublish": "babel shapeup.js --no-comments -o shapeup-min.js",
     "test": "tape test.js | tap-diff"
   },
   "repository": {
