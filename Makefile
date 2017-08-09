@@ -1,5 +1,6 @@
 .DEFAULT_GOAL := setup
 
+PROJECT=shapeup
 NODE_MODULES = node_modules
 
 $(NODE_MODULES):
@@ -18,7 +19,7 @@ clean:
 
 .PHONY: help
 help:
-	@echo -e 'shapeup - list of make targets:\n'
+	@echo -e '$(PROJECT) - list of make targets:\n'
 	@echo 'make - prepare the development environment'
 	@echo 'make test - run tests'
 	@echo 'make lint - run linter'
@@ -38,7 +39,15 @@ prepare: setup
 	npm run minifyLegacy
 
 .PHONY: release
-release: check prepare
+release: clean check prepare
+	$(eval current := $(shell npm view $(PROJECT) version))
+	$(eval package := $(shell npm version | grep $(PROJECT) | cut -d "'" -f 2))
+	@test $(current) != $(package) || ( \
+		echo cannot publish existing version $(current): update package.json; \
+		exit 1 \
+	)
+	git tag $(package)
+	git push --tags
 	npm publish
 
 .PHONY: setup
