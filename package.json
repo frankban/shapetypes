@@ -1,6 +1,6 @@
 {
   "name": "shapeup",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Improved shape and reshape React property types",
   "main": "shapeup.js",
   "scripts": {
@@ -29,6 +29,10 @@
   "dependencies": {
     "prop-types": "^15.5.10"
   },
+  "files": [
+    "*-legacy.js",
+    "*-min.js"
+  ],
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-preset-babili": "^0.1.4",
