@@ -4,6 +4,41 @@ const PropTypes = require('prop-types');
 const shapeup = require('./shapeup.js');
 const test = require('tape');
 
+test('addReshape', t => {
+  t.test('adds the reshape function to an arbitrary object', t => {
+    let obj = {
+      field1: 42,
+      field2: 'these are the voyages'
+    };
+    shapeup.addReshape(obj);
+    // The reshape function is included, and can be used to reshape the object.
+    t.ok(obj.reshape);
+    const shape = shapeup.shape({
+      field1: PropTypes.number,
+    });
+    obj = obj.reshape(shape);
+    t.deepEqual(obj, {field1: 42});
+    t.end();
+  });
+
+  t.test('can use a customized key for the reshape function', t => {
+    let obj = {
+      field1: 42,
+    };
+    shapeup.addReshape(obj, 'shapeAgain');
+    t.ok(obj.shapeAgain);
+    obj = obj.shapeAgain(shapeup.shape({}));
+    t.deepEqual(obj, {});
+    t.end();
+  });
+
+  t.test('does not return anything', t => {
+    const result = shapeup.addReshape({});
+    t.equal(result, undefined);
+    t.end();
+  });
+});
+
 test('deepFreeze', t => {
   t.test('deeply freezes objects', t => {
     const obj = {
@@ -25,6 +60,16 @@ test('deepFreeze', t => {
     checkFrozen(t, frozen.map);
     checkFrozen(t, frozen.str);
     checkFrozen(t, frozen.number);
+    t.end();
+  });
+
+  t.test('deeply freezes recursive objects', t => {
+    const obj = {answer: 42};
+    obj.recursive = obj;
+    const frozen = shapeup.deepFreeze(obj);
+    checkFrozen(t, frozen);
+    checkFrozen(t, frozen.answer);
+    checkFrozen(t, frozen.recursive);
     t.end();
   });
 });
@@ -218,8 +263,43 @@ test('fromShape', t => {
 });
 
 test('reshapeFunc', t => {
-  t.test('returns null', t => {
-    t.equal(shapeup.reshapeFunc(), null);
+  t.test('validates that the value is actually provided', t => {
+    const propTypes = {
+      reshape: shapeup.reshapeFunc
+    };
+    const props = {
+      reshape: () => {}
+    };
+    const err = checkPropTypes(propTypes, props);
+    t.equal(err, '');
+    t.end();
+  });
+
+  t.test('fails if the property is not provided', t => {
+    const propTypes = {
+      reshape: shapeup.reshapeFunc
+    };
+    const props = {};
+    const err = checkPropTypes(propTypes, props);
+    t.equal(
+      err,
+      'Warning: Failed testProp type: The testProp `reshape` is marked as ' +
+      'required in `TestComponent`, but its value is `undefined`.');
+    t.end();
+  });
+
+  t.test('fails if the given property is not a function', t => {
+    const propTypes = {
+      reshape: shapeup.reshapeFunc
+    };
+    const props = {
+      reshape: 42
+    };
+    const err = checkPropTypes(propTypes, props);
+    t.equal(
+      err,
+      'Warning: Failed testProp type: Invalid testProp `reshape` of type ' +
+      '`number` supplied to `TestComponent`, expected `function`.');
     t.end();
   });
 
@@ -407,7 +487,7 @@ test('shape', t => {
 // Check that the given object is frozen.
 const checkFrozen = (t, obj) => {
   t.notEqual(obj, undefined, 'object is defined');
-  t.ok(Object.isFrozen(obj), JSON.stringify(obj));
+  t.ok(Object.isFrozen(obj), repr(obj));
 };
 
 // Define the property name for the shape information.
@@ -425,4 +505,26 @@ const checkPropTypes = (propTypes, props) => {
   // Restore the original "console.error" function.
   console.error = original;
   return errors.join(' | ');
+};
+
+// Return a string representation for the given object.
+const repr = obj => {
+  const seen = new Map();
+  return JSON.stringify(obj, (key, value) => {
+    if (value === undefined) {
+      return '<undefined>';
+    }
+    const type = typeof value;
+    if (type === 'function') {
+      return '' + value;
+    }
+    if (type === 'object' && value !== null) {
+      // Handle recursive data structures.
+      if (seen.has(value)) {
+        return '<recursive>';
+      }
+      seen.set(value, true);
+    }
+    return value;
+  }, 2);
 };
