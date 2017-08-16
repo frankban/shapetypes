@@ -1,6 +1,6 @@
 {
   "name": "shapeup",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Improved shape and reshape React property types",
   "main": "shapeup.js",
   "scripts": {

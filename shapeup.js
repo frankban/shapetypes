@@ -96,7 +96,7 @@ function fromShape(obj, propType, options=null) {
     const type = shape[key];
     if (type[SHAPE] instanceof Reshape) {
       // Add the reshape function to the resulting instance.
-      instance[key] = fromShape.bind(null, instance);
+      addReshape(instance, key);
       return;
     }
     let value = obj[key];
@@ -121,6 +121,18 @@ function fromShape(obj, propType, options=null) {
     return instance;
   }
   return deepFreeze(instance);
+}
+
+/**
+  Add the reshape function to the given instance (in place).
+  The reshape will apply to the instance itself.
+
+  @param {Object} instance The instance to be modified.
+  @param {String} key The optional key used for the reshape function
+    (defaulting to "reshape").
+*/
+function addReshape(instance, key='reshape') {
+  instance[key] = fromShape.bind(null, instance);
 }
 
 /**
@@ -190,14 +202,19 @@ function frozenWrapper(propType) {
   @returns {Object} The resulting deeply frozen object.
 */
 function deepFreeze(obj) {
+  Object.freeze(obj);
   Object.getOwnPropertyNames(obj).forEach(name => {
     const prop = obj[name];
     const type = typeof obj;
-    if (prop !== null && (type === 'object' || type === 'function')) {
+    if (
+      prop !== null &&
+      (type === 'object' || type === 'function') &&
+      !Object.isFrozen(prop)
+    ) {
       deepFreeze(prop);
     }
   });
-  return Object.freeze(obj);
+  return obj;
 }
 
 // Define the property name for the shape information.
@@ -218,12 +235,16 @@ const Declaration = class Declaration {
 const Reshape = class Reshape {};
 
 /**
-  A dummy property type only used as a placeholder for the reshape function.
+  A required func property type wrapper only used as a placeholder for the
+  reshape function.
 */
-const reshapeFunc = () => null;
+const reshapeFunc = (props, propName, componentName, ...rest) => {
+  return PropTypes.func.isRequired(props, propName, componentName, ...rest);
+};
 reshapeFunc[SHAPE] = new Reshape();
 
 module.exports = {
+  addReshape: addReshape,
   deepFreeze: deepFreeze,
   fromShape: fromShape,
   reshapeFunc: reshapeFunc,
