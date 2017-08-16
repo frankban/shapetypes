@@ -509,10 +509,22 @@ const checkPropTypes = (propTypes, props) => {
 
 // Return a string representation for the given object.
 const repr = obj => {
-  try {
-    return JSON.stringify(obj);
-  } catch (_) {
-    // The given object must be a recursive data structure.
-    return obj.toString();
-  }
+  const seen = new Map();
+  return JSON.stringify(obj, (key, value) => {
+    if (value === undefined) {
+      return '<undefined>';
+    }
+    const type = typeof value;
+    if (type === 'function') {
+      return '' + value;
+    }
+    if (type === 'object' && value !== null) {
+      // Handle recursive data structures.
+      if (seen.has(value)) {
+        return '<recursive>';
+      }
+      seen.set(value, true);
+    }
+    return value;
+  }, 2);
 };
