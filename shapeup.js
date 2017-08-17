@@ -125,14 +125,20 @@ function fromShape(obj, propType, options=null) {
 
 /**
   Add the reshape function to the given instance (in place).
-  The reshape will apply to the instance itself.
+  The reshape operation will be applied to the instance itself, and will also
+  include freezing the resulting object in case the input instance is frozen.
 
   @param {Object} instance The instance to be modified.
   @param {String} key The optional key used for the reshape function
     (defaulting to "reshape").
+  @return {Object} The modified instance.
 */
 function addReshape(instance, key='reshape') {
-  instance[key] = fromShape.bind(null, instance);
+  instance[key] = propType => {
+    const mutable = !Object.isFrozen(instance);
+    return fromShape(instance, propType, {mutable: mutable});
+  };
+  return instance;
 }
 
 /**

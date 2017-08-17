@@ -5,17 +5,20 @@ const shapeup = require('./shapeup.js');
 const test = require('tape');
 
 test('addReshape', t => {
+  const shape = shapeup.shape({
+    field1: PropTypes.number,
+  });
+
   t.test('adds the reshape function to an arbitrary object', t => {
     let obj = {
       field1: 42,
       field2: 'these are the voyages'
     };
-    shapeup.addReshape(obj);
+    const newObj = shapeup.addReshape(obj);
+    // The returned object is the input object itself.
+    t.equal(newObj, obj);
     // The reshape function is included, and can be used to reshape the object.
     t.ok(obj.reshape);
-    const shape = shapeup.shape({
-      field1: PropTypes.number,
-    });
     obj = obj.reshape(shape);
     t.deepEqual(obj, {field1: 42});
     t.end();
@@ -32,9 +35,26 @@ test('addReshape', t => {
     t.end();
   });
 
-  t.test('does not return anything', t => {
-    const result = shapeup.addReshape({});
-    t.equal(result, undefined);
+  t.test('freezes the resulting object if the input is frozen', t => {
+    let obj = {
+      field1: 47,
+      field2: 'these are the voyages'
+    };
+    shapeup.addReshape(obj);
+    Object.freeze(obj);
+    obj = obj.reshape(shape);
+    checkFrozen(t, obj);
+    t.end();
+  });
+
+  t.test('does not freeze the resulting object if the input is mutable', t => {
+    let obj = {
+      field1: 47,
+      field2: 'these are the voyages'
+    };
+    shapeup.addReshape(obj);
+    obj = obj.reshape(shape);
+    t.notOk(Object.isFrozen(obj));
     t.end();
   });
 });
@@ -100,6 +120,8 @@ test('fromShape', t => {
     });
     obj = obj.reshape(shape);
     t.deepEqual(obj, {field1: 42});
+    // As the input instance is frozen, the reshaped object is frozen as well.
+    checkFrozen(t, obj);
     t.end();
   });
 
