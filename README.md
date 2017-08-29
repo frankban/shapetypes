@@ -4,15 +4,16 @@ The React `shape` [property type](https://www.npmjs.com/package/prop-types) is
 useful for declaring how objects provided to components should look like. By
 stating that a property has a given shape, we are establishing a contract that
 must be fulfilled when instantiating the component. However, prop-types' shapes
-are to be considered more as a minimum requirement than as a proper external
-interface declaration: providing an object that has a superset of the declared
-properties is not considered an error, and therefore components can end up
-relying on fields that are not part of the contract.
+are more a minimum requirement than an external interface declaration:
+providing an object that has a superset of the declared properties is not
+considered an error, and therefore components can end up relying on fields that
+are not part of the contract.
 
-The shapeup library fixes this by requiring the provided properties to only
-have the declared set of fields: when using shapeup, passing in an object with
-extraneous fields would result in an error. This way we ensure that what's
-declared in the contract is also what's actually used by the components.
+The shapeup library fixes this by forcing the provided properties to only have
+the declared set of fields. When using shapeup, passing in an object with
+extraneous fields would result in an error. This way we ensure that what is
+declared in the contract exactly matches what is actually used by the
+components.
 
 ## Getting started
 
@@ -43,10 +44,10 @@ with the required fields, for instance:
   }}
 />
 ```
-Anyway, in cases like this, in which there is `someobj` which already
-implements the shape, it is possible to use [`shapeup.fromShape`](#fromShape),
-which automates the process of creating a new object based on an existing one
-and on a shape declaration, including methods binding as required, for example:
+In cases like this, in which there is `someobj` which already implements the
+shape, it is possible to use [`shapeup.fromShape`](#fromShape), which automates
+the process of creating a new object based on an existing one and on a shape
+declaration, including methods binding as required, for example:
 ```javascript
 <MyComponent
   api={shapeup.fromShape(someobj, MyComponent.propTypes.api)}
@@ -180,10 +181,10 @@ As with the traditional prop-types, it is possible to chain
 [`shapeup.shape`](#shape) with `isRequired`, in order to make that property
 required. It is also possible to chain the declaration with `frozen` in order
 to ensure that the provided property is deeply frozen. This is useful when
-providing a shape and willing to avoid the usual problems of object mutation,
-like unwanted side effects, bugs that are difficult to track down, unrequired
-React reconciliations. In this example, all we need to do to ensure the
-provided API is deeply frozen is adding `frozen` to the chain:
+providing a shape and wanting to avoid the usual problems of object mutation,
+such as unwanted side effects, bugs that are difficult to track down,
+unrequired React reconciliations. In this example, all we need to do to ensure
+the provided API is deeply frozen is adding `frozen` to the chain:
 ```javascript
 MyComponent.propTypes = {
   api: shapeup.shape({
