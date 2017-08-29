@@ -87,7 +87,7 @@ function shape(obj) {
 function fromShape(obj, propType, options=null) {
   const declaration = propType[SHAPE];
   if (!(declaration instanceof Declaration)) {
-    throw new Error('from shape called with a non-shape property type');
+    throw new Error('fromShape called with a non-shape property type');
   }
   const shape = declaration.shape;
   const instance = {};

@@ -99,7 +99,7 @@ test('fromShape', t => {
     const nonShapeType = () => {};
     t.throws(() => {
       shapeup.fromShape({}, nonShapeType);
-    }, /from shape called with a non-shape property type/);
+    }, /fromShape called with a non-shape property type/);
     t.end();
   });
 
