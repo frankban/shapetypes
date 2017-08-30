@@ -176,8 +176,7 @@ function frozenWrapper(propType) {
         `"${componentName}" is not frozen`
       );
     }
-    Object.getOwnPropertyNames(obj).forEach(name => {
-      const prop = obj[name];
+    forEachKeyValue(obj, (name, prop) => {
       const type = typeof obj;
       if (prop !== null && (type === 'object' || type === 'function')) {
         checkFrozen(prop, `${propName}.${name}`, componentName);
@@ -209,8 +208,7 @@ function frozenWrapper(propType) {
 */
 function deepFreeze(obj) {
   Object.freeze(obj);
-  Object.getOwnPropertyNames(obj).forEach(name => {
-    const prop = obj[name];
+  forEachKeyValue(obj, (name, prop) => {
     const type = typeof obj;
     if (
       prop !== null &&
@@ -221,6 +219,28 @@ function deepFreeze(obj) {
     }
   });
   return obj;
+}
+
+/**
+  Loop over key/value pairs included in the given object, and call the provided
+  function passing the key and the value.
+  All non-accessible values are skipped.
+
+  @param {Object} obj The object to introspect.
+  @param {Function} func The function to execute for each key/value pair in the
+    provided object, taking two arguments, the key and the value.
+*/
+function forEachKeyValue(obj, func) {
+  Object.getOwnPropertyNames(obj).forEach(key => {
+    let value;
+    try {
+      value = obj[key];
+    } catch(_) {
+      // This must be a non-accessible value, like "arguments" in Safari.
+      return;
+    }
+    func(key, value);
+  });
 }
 
 // Define the property name for the shape information.
