@@ -92,6 +92,21 @@ test('deepFreeze', t => {
     checkFrozen(t, frozen.recursive);
     t.end();
   });
+
+  t.test('ignores non-accessible properties', t => {
+    const obj = {answer: 42};
+    Object.defineProperty(obj, 'badWolf', {
+      get: () => {
+        throw new Error('bad wolf');
+      }
+    });
+    t.doesNotThrow(() => {
+      const frozen = shapeup.deepFreeze(obj);
+      checkFrozen(t, frozen);
+      checkFrozen(t, frozen.answer);
+    });
+    t.end();
+  });
 });
 
 test('fromShape', t => {
@@ -459,6 +474,29 @@ test('shape', t => {
     };
     const err = checkPropTypes(propTypes, props);
     t.equal(err, '');
+    t.end();
+  });
+
+  t.test('ignores non-accessible properties when checking immutability', t => {
+    const propTypes = {
+      api: shapeup.shape({
+        field1: PropTypes.array.isRequired
+      }).frozen,
+    };
+    const api = {field1: Object.freeze([0, 1, 2])};
+    Object.defineProperty(api, 'badWolf', {
+      get: () => {
+        throw new Error('bad wolf');
+      }
+    });
+    const props = {api: Object.freeze(api)};
+    const err = checkPropTypes(propTypes, props);
+    // The error is not "bad wolf", meaning we passed the frozen check.
+    t.equal(
+      err,
+      'Warning: Failed testProp type: invalid property "api" provided to ' +
+      'component "TestComponent": the provided object includes properties ' +
+      'that are not declared in the shape: badWolf');
     t.end();
   });
 
