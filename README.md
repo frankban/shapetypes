@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/frankban/shapeup.svg?branch=master)](https://travis-ci.org/frankban/shapeup)
+
 # shapeup
 
 The React `shape` [property type](https://www.npmjs.com/package/prop-types) is
